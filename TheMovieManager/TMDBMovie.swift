@@ -26,7 +26,8 @@ struct TMDBMovie {
         posterPath = dictionary[TMDBClient.JSONResponseKeys.MoviePosterPath] as? String
         
         if let releaseDateString = dictionary[TMDBClient.JSONResponseKeys.MovieReleaseDate] as? String, releaseDateString.isEmpty == false {
-            releaseYear = releaseDateString.substring(to: releaseDateString.characters.index(releaseDateString.startIndex, offsetBy: 4))
+            //releaseYear = releaseDateString.substring(to: releaseDateString.characters.index(releaseDateString.startIndex, offsetBy: 4))
+            releaseYear = String(releaseDateString.prefix(4))
         } else {
             releaseYear = ""
         }
