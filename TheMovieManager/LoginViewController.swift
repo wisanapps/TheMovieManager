@@ -134,6 +134,7 @@ class LoginViewController: UIViewController {
         task.resume()
     }
     
+    // Get the user to authorize the request token
     private func loginWithToken(_ requestToken: String) {
         
         let authorizationURL = URL(string: "\(TMDBClient.Constants.AuthorizationURL)\(requestToken)")
