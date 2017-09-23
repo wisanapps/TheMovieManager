@@ -127,14 +127,31 @@ extension TMDBClient {
         /* 1. Specify parameters, the API method, and the HTTP body (if POST) */
         /* 2. Make the request */
         /* 3. Send the desired value(s) to completion handler */
+        let apiParameters = [ParameterKeys.RequestToken: requestToken]
         
-        /*
-        
-        taskForGETMethod(method, parameters: parameters) { (results, error) in
-        
+        _ = self.taskForGETMethod(Methods.AuthenticationSessionNew, parameters: apiParameters as [String : AnyObject]) { (result, error) in
+            guard error == nil else {
+                completionHandlerForSession(false, nil,"Login Failed (Session ID)")
+                return
+            }
+            
+            guard let data = result as? [String: AnyObject] else {
+                completionHandlerForSession(false, nil,"Cannot covert data to [String: AnyObject]")
+                return
+            }
+            
+            guard let successStatus = data[JSONResponseKeys.StatusSuccess] as? Bool, successStatus == true else {
+                completionHandlerForSession(false, nil,"The value for key '\(JSONResponseKeys.StatusSuccess)' is false")
+                return
+            }
+            
+            guard let sessionID = data[JSONResponseKeys.SessionID] as? String else {
+                completionHandlerForSession(false, nil,"Cannot get value for key '\(JSONResponseKeys.SessionID)'")
+                return
+            }
+            
+            completionHandlerForSession(true, sessionID, nil)
         }
-        
-        */
     }
     
     private func getUserID(_ completionHandlerForUserID: @escaping (_ success: Bool, _ userID: Int?, _ errorString: String?) -> Void) {
@@ -143,13 +160,26 @@ extension TMDBClient {
         /* 2. Make the request */
         /* 3. Send the desired value(s) to completion handler */
         
-        /*
+        let apiParameters = [ParameterKeys.SessionID: self.sessionID]
         
-        taskForGETMethod(method, parameters: parameters) { (results, error) in
-        
+        _ = self.taskForGETMethod(Methods.Account, parameters: apiParameters as [String : AnyObject]) { (result, error) in
+            guard error == nil else {
+                completionHandlerForUserID(false, nil,"Login Failed (User ID)")
+                return
+            }
+            
+            guard let data = result as? [String: AnyObject] else {
+                completionHandlerForUserID(false, nil,"Cannot covert data to [String: AnyObject]")
+                return
+            }
+            
+            guard let userID = data[JSONResponseKeys.UserID] as? Int else {
+                completionHandlerForUserID(false, nil,"Cannot get value for key '\(JSONResponseKeys.UserID)'")
+                return
+            }
+            
+            completionHandlerForUserID(true, userID, nil)
         }
-        
-        */
     }
     
     // MARK: GET Convenience Methods
