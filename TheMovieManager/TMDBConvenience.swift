@@ -77,19 +77,38 @@ extension TMDBClient {
         /* 2. Make the request */
         /* 3. Send the desired value(s) to completion handler */
         
-        /*
+        let apiParameters = [String: AnyObject]()
         
-        taskForGETMethod(method, parameters: parameters) { (results, error) in
-        
+        _ = taskForGETMethod(Methods.AuthenticationTokenNew, parameters: apiParameters) { (result, error) in
+            guard error == nil else {
+                completionHandlerForToken(false, nil,"Login Failed (Request Token)")
+                return
+            }
+            
+            guard let data = result as? [String: AnyObject] else {
+                completionHandlerForToken(false, nil,"Cannot covert data to [String: AnyObject]")
+                return
+            }
+            
+            guard let successStatus = data[JSONResponseKeys.StatusSuccess] as? Bool, successStatus == true else {
+                completionHandlerForToken(false, nil,"The value for key '\(JSONResponseKeys.StatusSuccess)' is false")
+                return
+            }
+            
+            guard let token = data[JSONResponseKeys.RequestToken] as? String else {
+                completionHandlerForToken(false, nil,"Cannot get value for key '\(JSONResponseKeys.RequestToken)'")
+                return
+            }
+            
+            completionHandlerForToken(true, token, nil)
         }
-        
-        */
     }
     
     private func loginWithToken(_ requestToken: String?, hostViewController: UIViewController, completionHandlerForLogin: @escaping (_ success: Bool, _ errorString: String?) -> Void) {
         
         let authorizationURL = URL(string: "\(TMDBClient.Constants.AuthorizationURL)\(requestToken!)")
         let request = URLRequest(url: authorizationURL!)
+        
         let webAuthViewController = hostViewController.storyboard!.instantiateViewController(withIdentifier: "TMDBAuthViewController") as! TMDBAuthViewController
         webAuthViewController.urlRequest = request
         webAuthViewController.requestToken = requestToken
