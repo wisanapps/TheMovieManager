@@ -88,11 +88,23 @@ extension MoviePickerViewController: UISearchBarDelegate {
             movieTableView?.reloadData()
             return
         }
-    }
+        
+        // new search
+        searchTask = TMDBClient.sharedInstance().getMoviesForSearchString(searchText) { (movies, error) in
+            self.searchTask = nil
+            if let movies = movies {
+                self.movies = movies
+                performUIUpdatesOnMain {
+                    self.movieTableView.reloadData()
+                }
+            }
+        }
+        
+    }//end func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
-    }
+    }//end func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
 }
 
 // MARK: - MoviePickerViewController: UITableViewDelegate, UITableViewDataSource
@@ -112,16 +124,16 @@ extension MoviePickerViewController: UITableViewDelegate, UITableViewDataSource 
         }
         
         return cell!
-    }
+    }//end func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return movies.count
-    }
+    }//end func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {        
         let movie = movies[(indexPath as NSIndexPath).row]
         let controller = storyboard!.instantiateViewController(withIdentifier: "MovieDetailViewController") as! MovieDetailViewController
         controller.movie = movie
         navigationController!.pushViewController(controller, animated: true)
-    }
+    }//end func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
 }

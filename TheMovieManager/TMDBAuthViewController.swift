@@ -51,13 +51,29 @@ class TMDBAuthViewController: UIViewController {
 // MARK: - TMDBAuthViewController: UIWebViewDelegate
 
 extension TMDBAuthViewController: UIWebViewDelegate {
+
     
     // TODO: Add implementation here
     func webViewDidFinishLoad(_ webView: UIWebView) {
+        
+        // if user has to login, this will redirect them back to the authorization url
+        if webView.request!.url!.absoluteString.contains(TMDBClient.Constants.AccountURL) {
+            if let urlRequest = urlRequest {
+                webView.loadRequest(urlRequest)
+            }
+        }
+        
         if webView.request?.url?.absoluteString == TMDBClient.Constants.AuthorizationURL.appending("\(requestToken!)/allow") {
             dismiss(animated: true) {
                 self.completionHandlerForView!(true, nil)
             }
         }
+        
+        if webView.request?.url?.absoluteString == TMDBClient.Constants.AuthorizationURL.appending("\(requestToken!)/deny") {
+            dismiss(animated: true) {
+                self.completionHandlerForView!(false, "User denied authorization")
+            }
+        }
     }
+    
 }

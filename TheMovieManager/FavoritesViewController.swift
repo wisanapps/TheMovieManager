@@ -31,7 +31,19 @@ class FavoritesViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-    }
+        
+        TMDBClient.sharedInstance().getFavoriteMovies { (movies, error) in
+            if let movies = movies {
+                self.movies = movies
+                performUIUpdatesOnMain {
+                    self.moviesTableView.reloadData()
+                }
+            } else {
+                print(error ?? "empty error")
+            }
+        }
+
+    }//end override func viewWillAppear(_ animated: Bool)
     
     // MARK: Logout
     
@@ -55,9 +67,21 @@ extension FavoritesViewController: UITableViewDelegate, UITableViewDataSource {
         cell?.textLabel!.text = movie.title
         cell?.imageView!.image = UIImage(named: "Film")
         cell?.imageView!.contentMode = UIViewContentMode.scaleAspectFit
-                
+        
+        if let posterPath = movie.posterPath {
+            let _ = TMDBClient.sharedInstance().taskForGETImage(TMDBClient.PosterSizes.RowPoster, filePath: posterPath, completionHandlerForImage: { (imageData, error) in
+                if let image = UIImage(data: imageData!) {
+                    performUIUpdatesOnMain {
+                        cell?.imageView!.image = image
+                    }
+                } else {
+                    print(error ?? "empty error")
+                }
+            })
+        }
+        
         return cell!
-    }
+    }//end func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return movies.count
